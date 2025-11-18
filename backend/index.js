@@ -3,16 +3,18 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-// LOAD ENVIRONMENT VARIABLES IMMEDIATELY - FIRST THING
+// Load environment variables FIRST
 dotenv.config();
 
 console.log('=== ENVIRONMENT VARIABLES LOADED ===');
-console.log('EMAIL_USER:', process.env.EMAIL_USER);
-console.log('EMAIL_PASS length:', process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 'undefined');
+console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
+console.log('USDA API Key:', process.env.USDA_API_KEY ? 'Set' : 'Not set');
+console.log('Nutritionix App ID:', process.env.NUTRITIONIX_APP_ID ? 'Set' : 'Not set');
 console.log('====================================');
 
-// NOW import routes AFTER environment variables are loaded
+// Import routes AFTER environment variables
 import authRoutes from './src/routes/auth.js';
+import dietRoutes from './src/routes/diet.js';
 
 const app = express();
 
@@ -22,13 +24,15 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/diet', dietRoutes); // Add diet routes
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.log('MongoDB connection error:', err));
+.then(() => console.log('✅ MongoDB connected successfully'))
+.catch(err => console.log('❌ MongoDB connection error:', err));
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Diet Planner API available at http://localhost:${PORT}/api/diet`);
 });

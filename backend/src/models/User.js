@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
+import crypto from 'crypto'; // Fixed import
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -50,6 +50,7 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 
 // Generate reset token method
 userSchema.methods.getResetPasswordToken = function() {
+    // Use imported crypto directly
     const resetToken = crypto.randomBytes(20).toString('hex');
     
     this.resetPasswordToken = crypto
