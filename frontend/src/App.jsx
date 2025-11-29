@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router'; // ✅ FIXED: import from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router'; // ✅ FIXED IMPORT
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import Register from './components/Register';
