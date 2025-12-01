@@ -48,10 +48,10 @@ const foodSchema = new mongoose.Schema({
         required: true
     },
     
-    // Source Tracking
+    // Source Tracking - UPDATED to include 'sample'
     source: {
         type: String,
-        enum: ['usda', 'nutritionix', 'edamam', 'custom'],
+        enum: ['usda', 'nutritionix', 'edamam', 'custom', 'sample'], // Added 'sample'
         default: 'custom'
     },
     externalId: String, // ID from external API
