@@ -130,7 +130,6 @@ const ProfileSetup = ({ onProfileUpdate }) => {
                 setMessage({ type: 'success', text: 'Profile saved successfully!' });
                 if (onProfileUpdate) onProfileUpdate();
                 
-                // Update calculated targets from server response
                 if (result.profile) {
                     setCalculatedTargets({
                         calories: result.profile.dailyCalories,
@@ -149,216 +148,264 @@ const ProfileSetup = ({ onProfileUpdate }) => {
         }
     };
 
-    return (
-        <div className="max-w-4xl mx-auto">
-            <div className="bg-white shadow rounded-lg">
-                <div className="px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-2xl font-semibold text-gray-900">Profile Setup</h2>
-                    <p className="mt-1 text-sm text-gray-600">
-                        Set up your personal information and goals for personalized nutrition targets.
-                    </p>
-                </div>
+    // --- Custom Styles & Classes ---
+    const styles = `
+        /* Inheriting theme variables from parent if available, else defaults */
+        .input-field {
+            background-color: var(--bg-main, #f8fafc);
+            color: var(--text-main, #0f172a);
+            border: 1px solid var(--border, #e2e8f0);
+            transition: all 0.2s;
+        }
+        .input-field:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            outline: none;
+        }
+        
+        .diet-tag-checkbox {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .diet-tag-label {
+            transition: all 0.2s;
+        }
+        
+        .diet-tag-checkbox:checked + .diet-tag-label {
+            background-color: #ecfdf5; /* emerald-50 */
+            border-color: #10b981;    /* emerald-500 */
+            color: #047857;           /* emerald-700 */
+            font-weight: 600;
+        }
+        /* Dark mode specific for checked state */
+        .dark .diet-tag-checkbox:checked + .diet-tag-label {
+            background-color: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+            color: #34d399;
+        }
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-enter { animation: fadeIn 0.4s ease-out forwards; }
+    `;
+
+    return (
+        <div className="max-w-5xl mx-auto pb-20 animate-enter">
+            <style>{styles}</style>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+                
+                {/* --- Header --- */}
+                <div className="card-bg rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Profile Setup</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">Fine-tune your personal details for accurate nutrition.</p>
+                    </div>
+                    {/* Status Message */}
                     {message.text && (
-                        <div className={`p-4 rounded-md ${
-                            message.type === 'success' 
-                                ? 'bg-green-50 border border-green-200 text-green-700'
-                                : 'bg-red-50 border border-red-200 text-red-700'
+                        <div className={`px-4 py-2 rounded-xl text-sm font-medium animate-enter ${
+                            message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                            'bg-red-50 text-red-700 border border-red-200'
                         }`}>
                             {message.text}
                         </div>
                     )}
+                </div>
 
-                    {/* Personal Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Age
-                            </label>
-                            <input
-                                type="number"
-                                name="age"
-                                value={formData.age}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                min="13"
-                                max="120"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Gender
-                            </label>
-                            <select
-                                name="gender"
-                                value={formData.gender}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            >
-                                <option value="">Select Gender</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Height (cm)
-                            </label>
-                            <input
-                                type="number"
-                                name="height"
-                                value={formData.height}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                min="100"
-                                max="250"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Weight (kg)
-                            </label>
-                            <input
-                                type="number"
-                                name="weight"
-                                value={formData.weight}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                min="30"
-                                max="300"
-                                step="0.1"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Goals and Activity */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Goal
-                            </label>
-                            <select
-                                name="goal"
-                                value={formData.goal}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            >
-                                <option value="weight_loss">Weight Loss</option>
-                                <option value="weight_gain">Weight Gain</option>
-                                <option value="muscle_gain">Muscle Gain</option>
-                                <option value="maintenance">Maintenance</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Activity Level
-                            </label>
-                            <select
-                                name="activityLevel"
-                                value={formData.activityLevel}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            >
-                                <option value="sedentary">Sedentary (little to no exercise)</option>
-                                <option value="light">Light (exercise 1-3 times/week)</option>
-                                <option value="moderate">Moderate (exercise 3-5 times/week)</option>
-                                <option value="active">Active (exercise 6-7 times/week)</option>
-                                <option value="very_active">Very Active (physical job + exercise)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Dietary Restrictions */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                            Dietary Restrictions
-                        </label>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            {['vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'nut-free', 'keto', 'paleo'].map(restriction => (
-                                <label key={restriction} className="flex items-center space-x-2">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* --- Left Column: Personal Info --- */}
+                    <div className="space-y-6">
+                        {/* Personal Details Card */}
+                        <div className="card-bg rounded-3xl p-6 shadow-sm">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span>👤</span> Personal Details
+                            </h3>
+                            <div className="grid grid-cols-2 gap-5">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Age</label>
                                     <input
-                                        type="checkbox"
-                                        name="dietaryRestrictions"
-                                        value={restriction}
-                                        checked={formData.dietaryRestrictions.includes(restriction)}
+                                        type="number"
+                                        name="age"
+                                        value={formData.age}
                                         onChange={handleChange}
-                                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                        className="input-field w-full px-4 py-2.5 rounded-xl"
+                                        placeholder="Years"
+                                        min="13" max="120"
                                     />
-                                    <span className="text-sm text-gray-700 capitalize">{restriction.replace('-', ' ')}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Allergies */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Allergies (comma separated)
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.allergies.join(', ')}
-                            onChange={handleAllergyChange}
-                            placeholder="e.g., peanuts, shellfish, dairy"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
-                    </div>
-
-                    {/* Calculate Targets Button */}
-                    <div className="flex justify-between items-center">
-                        <button
-                            type="button"
-                            onClick={calculateTargets}
-                            disabled={!formData.age || !formData.gender || !formData.height || !formData.weight}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Calculate Targets
-                        </button>
-                    </div>
-
-                    {/* Calculated Targets */}
-                    {calculatedTargets && (
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <h3 className="text-lg font-semibold mb-3">Your Daily Targets</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-indigo-600">{calculatedTargets.calories}</div>
-                                    <div className="text-sm text-gray-600">Calories</div>
                                 </div>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-green-600">{calculatedTargets.protein}g</div>
-                                    <div className="text-sm text-gray-600">Protein</div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Gender</label>
+                                    <select
+                                        name="gender"
+                                        value={formData.gender}
+                                        onChange={handleChange}
+                                        className="input-field w-full px-4 py-2.5 rounded-xl"
+                                    >
+                                        <option value="">Select</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
                                 </div>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-yellow-600">{calculatedTargets.carbs}g</div>
-                                    <div className="text-sm text-gray-600">Carbs</div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Height (cm)</label>
+                                    <input
+                                        type="number"
+                                        name="height"
+                                        value={formData.height}
+                                        onChange={handleChange}
+                                        className="input-field w-full px-4 py-2.5 rounded-xl"
+                                        placeholder="cm"
+                                    />
                                 </div>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-red-600">{calculatedTargets.fat}g</div>
-                                    <div className="text-sm text-gray-600">Fat</div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Weight (kg)</label>
+                                    <input
+                                        type="number"
+                                        name="weight"
+                                        value={formData.weight}
+                                        onChange={handleChange}
+                                        className="input-field w-full px-4 py-2.5 rounded-xl"
+                                        placeholder="kg"
+                                        step="0.1"
+                                    />
                                 </div>
                             </div>
                         </div>
-                    )}
 
-                    {/* Submit Button */}
-                    <div className="flex justify-end pt-6 border-t border-gray-200">
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50"
-                        >
-                            {loading ? 'Saving...' : 'Save Profile'}
-                        </button>
+                        {/* Lifestyle Card */}
+                        <div className="card-bg rounded-3xl p-6 shadow-sm">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span>🏃</span> Lifestyle & Goals
+                            </h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Main Goal</label>
+                                    <select
+                                        name="goal"
+                                        value={formData.goal}
+                                        onChange={handleChange}
+                                        className="input-field w-full px-4 py-2.5 rounded-xl"
+                                    >
+                                        <option value="weight_loss">📉 Weight Loss</option>
+                                        <option value="weight_gain">📈 Weight Gain</option>
+                                        <option value="muscle_gain">💪 Muscle Gain</option>
+                                        <option value="maintenance">⚖️ Maintenance</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Activity Level</label>
+                                    <select
+                                        name="activityLevel"
+                                        value={formData.activityLevel}
+                                        onChange={handleChange}
+                                        className="input-field w-full px-4 py-2.5 rounded-xl"
+                                    >
+                                        <option value="sedentary">Sedentary (Office job, no exercise)</option>
+                                        <option value="light">Light (Exercise 1-3x/week)</option>
+                                        <option value="moderate">Moderate (Exercise 3-5x/week)</option>
+                                        <option value="active">Active (Exercise 6-7x/week)</option>
+                                        <option value="very_active">Very Active (Physical job + training)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
+
+                    {/* --- Right Column: Preferences & Results --- */}
+                    <div className="space-y-6">
+                        
+                        {/* Dietary Preferences Card */}
+                        <div className="card-bg rounded-3xl p-6 shadow-sm">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span>🥗</span> Dietary Preferences
+                            </h3>
+                            
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Dietary Restrictions</label>
+                            <div className="flex flex-wrap gap-2 mb-5">
+                                {['vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'nut-free', 'keto', 'paleo'].map(restriction => (
+                                    <label key={restriction} className="relative">
+                                        <input
+                                            type="checkbox"
+                                            name="dietaryRestrictions"
+                                            value={restriction}
+                                            checked={formData.dietaryRestrictions.includes(restriction)}
+                                            onChange={handleChange}
+                                            className="diet-tag-checkbox"
+                                        />
+                                        <span className="diet-tag-label inline-block px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-300 text-sm hover:border-gray-300">
+                                            {restriction.replace('-', ' ')}
+                                        </span>
+                                    </label>
+                                ))}
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Allergies</label>
+                                <input
+                                    type="text"
+                                    value={formData.allergies.join(', ')}
+                                    onChange={handleAllergyChange}
+                                    placeholder="e.g., peanuts, shellfish, dairy"
+                                    className="input-field w-full px-4 py-2.5 rounded-xl"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Calculated Targets Widget */}
+                        <div className="card-bg rounded-3xl p-6 shadow-sm border-t-4 border-t-emerald-500">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Daily Targets</h3>
+                                <button
+                                    type="button"
+                                    onClick={calculateTargets}
+                                    disabled={!formData.age || !formData.gender || !formData.height || !formData.weight}
+                                    className="text-xs font-bold bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-100 disabled:opacity-50 transition-colors"
+                                >
+                                    ↻ Recalculate
+                                </button>
+                            </div>
+
+                            {calculatedTargets ? (
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-xl text-center">
+                                        <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{calculatedTargets.calories}</div>
+                                        <div className="text-xs font-medium text-orange-800 dark:text-orange-300">Calories</div>
+                                    </div>
+                                    <div className="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-xl text-center">
+                                        <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{calculatedTargets.protein}g</div>
+                                        <div className="text-xs font-medium text-emerald-800 dark:text-emerald-300">Protein</div>
+                                    </div>
+                                    <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl text-center">
+                                        <div className="text-xl font-bold text-amber-600 dark:text-amber-400">{calculatedTargets.carbs}g</div>
+                                        <div className="text-xs font-medium text-amber-800 dark:text-amber-300">Carbs</div>
+                                    </div>
+                                    <div className="bg-rose-50 dark:bg-rose-900/20 p-3 rounded-xl text-center">
+                                        <div className="text-xl font-bold text-rose-600 dark:text-rose-400">{calculatedTargets.fat}g</div>
+                                        <div className="text-xs font-medium text-rose-800 dark:text-rose-300">Fat</div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="text-center py-6 text-gray-400 text-sm italic bg-gray-50 dark:bg-slate-800/50 rounded-xl">
+                                    Fill in your details and click calculate to see your nutrition plan.
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Save Action */}
+                        <div className="flex justify-end pt-2">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full sm:w-auto bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-200 dark:shadow-none hover:bg-emerald-700 transition-all transform active:scale-95 disabled:opacity-50"
+                            >
+                                {loading ? 'Saving Changes...' : 'Save Profile'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     );
 };

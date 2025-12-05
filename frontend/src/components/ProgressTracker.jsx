@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { dietAPI } from '../services/api';
 
 const ProgressTracker = () => {
+    // --- State ---
     const [progressData, setProgressData] = useState({
         weight: '',
         measurements: {
@@ -20,6 +21,7 @@ const ProgressTracker = () => {
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
 
+    // --- Effects ---
     useEffect(() => {
         loadProgressHistory();
     }, []);
@@ -72,6 +74,7 @@ const ProgressTracker = () => {
                     notes: ''
                 });
                 loadProgressHistory();
+                setTimeout(() => setMessage({ type: '', text: '' }), 3000);
             } else {
                 setMessage({ type: 'error', text: result.message });
             }
@@ -83,11 +86,11 @@ const ProgressTracker = () => {
     };
 
     const moodOptions = [
-        { value: 'excellent', label: 'Excellent', emoji: '😄' },
-        { value: 'good', label: 'Good', emoji: '😊' },
-        { value: 'okay', label: 'Okay', emoji: '😐' },
-        { value: 'poor', label: 'Poor', emoji: '😔' },
-        { value: 'terrible', label: 'Terrible', emoji: '😞' }
+        { value: 'excellent', label: 'Excellent', emoji: '🤩', color: 'bg-emerald-100 border-emerald-300 text-emerald-800' },
+        { value: 'good', label: 'Good', emoji: '😊', color: 'bg-blue-100 border-blue-300 text-blue-800' },
+        { value: 'okay', label: 'Okay', emoji: '😐', color: 'bg-gray-100 border-gray-300 text-gray-800' },
+        { value: 'poor', label: 'Poor', emoji: '😔', color: 'bg-orange-100 border-orange-300 text-orange-800' },
+        { value: 'terrible', label: 'Terrible', emoji: '😞', color: 'bg-red-100 border-red-300 text-red-800' }
     ];
 
     const getWeightChange = (currentIndex) => {
@@ -105,215 +108,287 @@ const ProgressTracker = () => {
         };
     };
 
+    // --- Custom Styles ---
+    const styles = `
+        .search-input {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+            outline: none;
+        }
+        
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #10b981;
+            margin-top: -8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #cbd5e1; /* Darker gray for light mode */
+            border-radius: 2px;
+        }
+        .dark input[type=range]::-webkit-slider-runnable-track {
+            background: #475569;
+        }
+
+        .animate-enter {
+            animation: slideUp 0.4s ease-out forwards;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+
     return (
-        <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Progress Entry Form */}
-                <div className="lg:col-span-2">
-                    <div className="bg-white shadow rounded-lg">
-                        <div className="px-6 py-4 border-b border-gray-200">
-                            <h2 className="text-2xl font-semibold text-gray-900">Record Progress</h2>
-                            <p className="mt-1 text-sm text-gray-600">
-                                Track your weight, measurements, and how you're feeling.
-                            </p>
-                        </div>
+        <div className="max-w-6xl mx-auto pb-20 animate-enter">
+            <style>{styles}</style>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                            {message.text && (
-                                <div className={`p-4 rounded-md ${
-                                    message.type === 'success' 
-                                        ? 'bg-green-50 border border-green-200 text-green-700'
-                                        : 'bg-red-50 border border-red-200 text-red-700'
-                                }`}>
-                                    {message.text}
-                                </div>
-                            )}
+            {/* Header */}
+            <div className="mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Progress Tracker</h2>
+                <p className="text-gray-600 dark:text-gray-400">Record your journey and visualize your improvements.</p>
+            </div>
 
-                            {/* Weight */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Weight (kg)
-                                </label>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                {/* --- Left Column: Data Entry --- */}
+                <div className="lg:col-span-2 space-y-6">
+                    <form onSubmit={handleSubmit} className="card-bg rounded-3xl p-6 md:p-8 shadow-sm space-y-8">
+                        
+                        {/* Status Message */}
+                        {message.text && (
+                            <div className={`p-4 rounded-xl text-center font-medium ${
+                                message.type === 'success' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 
+                                'bg-red-100 text-red-800 border border-red-200'
+                            }`}>
+                                {message.text}
+                            </div>
+                        )}
+
+                        {/* Weight Section */}
+                        <div>
+                            <label className="block text-sm font-bold text-gray-800 dark:text-gray-300 uppercase tracking-wide mb-3">
+                                Current Weight
+                            </label>
+                            <div className="relative max-w-xs">
                                 <input
                                     type="number"
                                     name="weight"
                                     value={progressData.weight}
                                     onChange={handleChange}
                                     step="0.1"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                    placeholder="Enter your current weight"
+                                    required
+                                    className="search-input w-full pl-4 pr-12 py-4 rounded-2xl text-2xl font-bold text-gray-900 dark:text-white"
+                                    placeholder="0.0"
                                 />
+                                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">kg</span>
                             </div>
-
-                            {/* Measurements */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-3">
-                                    Body Measurements (cm)
-                                </label>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                    {[
-                                        { key: 'chest', label: 'Chest' },
-                                        { key: 'waist', label: 'Waist' },
-                                        { key: 'hips', label: 'Hips' },
-                                        { key: 'arms', label: 'Arms' },
-                                        { key: 'thighs', label: 'Thighs' }
-                                    ].map(measurement => (
-                                        <div key={measurement.key}>
-                                            <label className="block text-xs text-gray-600 mb-1">
-                                                {measurement.label}
-                                            </label>
-                                            <input
-                                                type="number"
-                                                name={`measurements.${measurement.key}`}
-                                                value={progressData.measurements[measurement.key]}
-                                                onChange={handleChange}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                                placeholder="cm"
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Mood and Energy */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Mood
-                                    </label>
-                                    <div className="space-y-2">
-                                        {moodOptions.map(option => (
-                                            <label key={option.value} className="flex items-center space-x-3">
-                                                <input
-                                                    type="radio"
-                                                    name="mood"
-                                                    value={option.value}
-                                                    checked={progressData.mood === option.value}
-                                                    onChange={handleChange}
-                                                    className="text-indigo-600 focus:ring-indigo-500"
-                                                />
-                                                <span className="text-sm">
-                                                    <span className="mr-2">{option.emoji}</span>
-                                                    {option.label}
-                                                </span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Energy Level: {progressData.energyLevel}/10
-                                    </label>
-                                    <input
-                                        type="range"
-                                        name="energyLevel"
-                                        min="1"
-                                        max="10"
-                                        value={progressData.energyLevel}
-                                        onChange={handleChange}
-                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                                    />
-                                    <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                        <span>Low</span>
-                                        <span>High</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Notes */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Notes
-                                </label>
-                                <textarea
-                                    name="notes"
-                                    value={progressData.notes}
-                                    onChange={handleChange}
-                                    rows="3"
-                                    placeholder="How are you feeling? Any observations about your progress?"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                />
-                            </div>
-
-                            <div className="flex justify-end">
-                                <button
-                                    type="submit"
-                                    disabled={saving || !progressData.weight}
-                                    className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50"
-                                >
-                                    {saving ? 'Saving...' : 'Save Progress'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                {/* Progress History */}
-                <div className="lg:col-span-1">
-                    <div className="bg-white shadow rounded-lg">
-                        <div className="px-6 py-4 border-b border-gray-200">
-                            <h3 className="text-lg font-semibold text-gray-900">Recent Progress</h3>
                         </div>
 
-                        <div className="p-6">
+                        {/* Measurements Grid */}
+                        <div>
+                            <label className="block text-sm font-bold text-gray-800 dark:text-gray-300 uppercase tracking-wide mb-4">
+                                Body Measurements (cm)
+                            </label>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {[
+                                    { key: 'chest', label: 'Chest', icon: '📏' },
+                                    { key: 'waist', label: 'Waist', icon: '👖' },
+                                    { key: 'hips', label: 'Hips', icon: '🩰' },
+                                    { key: 'arms', label: 'Arms', icon: '💪' },
+                                    { key: 'thighs', label: 'Thighs', icon: '🦵' }
+                                ].map((m) => (
+                                    <div key={m.key} className="relative group">
+                                        <label className="block text-xs text-gray-600 dark:text-gray-500 mb-1 ml-1 font-semibold">{m.label}</label>
+                                        <div className="relative">
+                                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50">{m.icon}</span>
+                                            <input
+                                                type="number"
+                                                name={`measurements.${m.key}`}
+                                                value={progressData.measurements[m.key]}
+                                                onChange={handleChange}
+                                                className="search-input w-full pl-9 pr-3 py-2.5 rounded-xl font-medium text-gray-900 dark:text-white"
+                                                placeholder="--"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <hr className="border-gray-200 dark:border-gray-700" />
+
+                        {/* Mood Selection */}
+                        <div>
+                            <label className="block text-sm font-bold text-gray-800 dark:text-gray-300 uppercase tracking-wide mb-4">
+                                How are you feeling?
+                            </label>
+                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                                {moodOptions.map(option => (
+                                    <label 
+                                        key={option.value} 
+                                        className={`
+                                            cursor-pointer flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition-all
+                                            ${progressData.mood === option.value 
+                                                ? `${option.color} shadow-sm transform scale-105` 
+                                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-gray-50 dark:bg-slate-800'
+                                            }
+                                        `}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="mood"
+                                            value={option.value}
+                                            checked={progressData.mood === option.value}
+                                            onChange={handleChange}
+                                            className="hidden"
+                                        />
+                                        <span className="text-2xl mb-1">{option.emoji}</span>
+                                        <span className={`text-xs font-bold ${progressData.mood !== option.value ? 'text-gray-600 dark:text-gray-400' : ''}`}>{option.label}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Energy Slider */}
+                        <div>
+                            <div className="flex justify-between items-center mb-4">
+                                <label className="block text-sm font-bold text-gray-800 dark:text-gray-300 uppercase tracking-wide">
+                                    Energy Level
+                                </label>
+                                <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-500 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-lg">
+                                    {progressData.energyLevel}<span className="text-sm text-emerald-600 dark:text-emerald-400">/10</span>
+                                </span>
+                            </div>
+                            <input
+                                type="range"
+                                name="energyLevel"
+                                min="1"
+                                max="10"
+                                value={progressData.energyLevel}
+                                onChange={handleChange}
+                                className="w-full"
+                            />
+                            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-2 font-medium">
+                                <span>Low Energy 😴</span>
+                                <span>High Energy ⚡</span>
+                            </div>
+                        </div>
+
+                        {/* Notes */}
+                        <div>
+                            <label className="block text-sm font-bold text-gray-800 dark:text-gray-300 uppercase tracking-wide mb-3">
+                                Daily Notes
+                            </label>
+                            <textarea
+                                name="notes"
+                                value={progressData.notes}
+                                onChange={handleChange}
+                                rows="3"
+                                placeholder="Any non-scale victories? How was your sleep?"
+                                className="search-input w-full p-4 rounded-xl resize-none text-gray-900 dark:text-white placeholder-gray-500"
+                            />
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="flex justify-end pt-4">
+                            <button
+                                type="submit"
+                                disabled={saving || !progressData.weight}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg shadow-emerald-200 dark:shadow-none transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
+                            >
+                                {saving ? 'Saving...' : 'Record Progress'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {/* --- Right Column: History Timeline --- */}
+                <div className="lg:col-span-1">
+                    <div className="card-bg rounded-3xl p-6 shadow-sm h-full flex flex-col">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                            <span>📜</span> History
+                        </h3>
+
+                        <div className="flex-1 overflow-y-auto custom-scroll pr-2 space-y-4 max-h-[800px]">
                             {progressHistory.length === 0 ? (
-                                <div className="text-center py-8 text-gray-500">
-                                    No progress records yet. Start tracking to see your history here!
+                                <div className="text-center py-10 opacity-60">
+                                    <div className="text-4xl mb-3">📉</div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">No records found yet.</p>
                                 </div>
                             ) : (
-                                <div className="space-y-4">
-                                    {progressHistory.map((entry, index) => {
-                                        const weightChange = getWeightChange(index);
-                                        
-                                        return (
-                                            <div key={entry._id} className="border border-gray-200 rounded-lg p-4">
+                                progressHistory.map((entry, index) => {
+                                    const weightChange = getWeightChange(index);
+                                    
+                                    return (
+                                        <div key={entry._id} className="relative pl-6 pb-6 border-l-2 border-gray-200 dark:border-gray-700 last:pb-0 last:border-0">
+                                            {/* Timeline Dot */}
+                                            <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-emerald-500 border-4 border-white dark:border-slate-800"></div>
+                                            
+                                            {/* Content Card */}
+                                            <div className="bg-gray-50 dark:bg-slate-800/50 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-200 transition-colors">
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <div className="font-semibold">
-                                                        {new Date(entry.date).toLocaleDateString()}
-                                                    </div>
+                                                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">
+                                                        {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                    </span>
+                                                    
+                                                    {/* Weight Change Badge */}
                                                     {weightChange && (
-                                                        <span className={`text-xs px-2 py-1 rounded ${
+                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
                                                             weightChange.direction === 'down' 
-                                                                ? 'bg-green-100 text-green-800'
+                                                                ? 'bg-emerald-100 text-emerald-800 dark:text-emerald-700' 
                                                                 : weightChange.direction === 'up'
-                                                                ? 'bg-red-100 text-red-800'
-                                                                : 'bg-gray-100 text-gray-800'
+                                                                ? 'bg-rose-100 text-rose-800 dark:text-rose-700'
+                                                                : 'bg-gray-100 text-gray-800 dark:text-gray-600'
                                                         }`}>
-                                                            {weightChange.direction === 'down' ? '↓' : '↑'} 
-                                                            {weightChange.value}kg
+                                                            {weightChange.direction === 'down' ? '↓' : '↑'} {weightChange.value}kg
                                                         </span>
                                                     )}
                                                 </div>
-                                                
-                                                {entry.weight && (
-                                                    <div className="text-lg font-bold text-indigo-600 mb-2">
-                                                        {entry.weight} kg
+
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                                        {entry.weight} <span className="text-sm text-gray-500 font-normal">kg</span>
+                                                    </span>
+                                                    <div className="text-2xl" title="Mood">
+                                                        {moodOptions.find(m => m.value === entry.mood)?.emoji}
                                                     </div>
-                                                )}
-                                                
-                                                <div className="text-sm text-gray-600 space-y-1">
-                                                    {entry.mood && (
-                                                        <div>
-                                                            Mood: {moodOptions.find(m => m.value === entry.mood)?.emoji} {moodOptions.find(m => m.value === entry.mood)?.label}
-                                                        </div>
-                                                    )}
-                                                    {entry.energyLevel && (
-                                                        <div>
-                                                            Energy: {entry.energyLevel}/10
-                                                        </div>
-                                                    )}
                                                 </div>
-                                                
+
+                                                <div className="flex gap-2 mb-2">
+                                                    <span className="text-xs font-semibold bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded border border-gray-200 dark:border-gray-600">
+                                                        ⚡ Energy: {entry.energyLevel}/10
+                                                    </span>
+                                                </div>
+
                                                 {entry.notes && (
-                                                    <div className="mt-2 text-sm text-gray-700 bg-gray-50 p-2 rounded">
-                                                        {entry.notes}
-                                                    </div>
+                                                    <p className="text-xs text-gray-600 dark:text-gray-500 italic mt-2 border-t border-gray-200 dark:border-gray-700 pt-2">
+                                                        "{entry.notes}"
+                                                    </p>
                                                 )}
                                             </div>
-                                        );
-                                    })}
-                                </div>
+                                        </div>
+                                    );
+                                })
                             )}
                         </div>
                     </div>
