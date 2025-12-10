@@ -1,6 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { dietAPI } from '../services/api';
 
+// --- Icons Import ---
+import { 
+    FaWeight, 
+    FaSmile, 
+    FaMeh, 
+    FaFrown, 
+    FaSadTear, 
+    FaGrinStars, 
+    FaBolt, 
+    FaHistory, 
+    FaArrowUp, 
+    FaArrowDown, 
+    FaChartBar,
+    FaBatteryQuarter,
+    FaBatteryFull
+} from 'react-icons/fa';
+import { GiChest, GiBelt, GiShorts, GiBiceps, GiLeg } from 'react-icons/gi';
+
 const ProgressTracker = () => {
     // --- State ---
     const [progressData, setProgressData] = useState({
@@ -85,12 +103,13 @@ const ProgressTracker = () => {
         }
     };
 
+    // Updated Mood Options with Icons
     const moodOptions = [
-        { value: 'excellent', label: 'Excellent', emoji: '🤩', color: 'bg-emerald-100 border-emerald-300 text-emerald-800' },
-        { value: 'good', label: 'Good', emoji: '😊', color: 'bg-blue-100 border-blue-300 text-blue-800' },
-        { value: 'okay', label: 'Okay', emoji: '😐', color: 'bg-gray-100 border-gray-300 text-gray-800' },
-        { value: 'poor', label: 'Poor', emoji: '😔', color: 'bg-orange-100 border-orange-300 text-orange-800' },
-        { value: 'terrible', label: 'Terrible', emoji: '😞', color: 'bg-red-100 border-red-300 text-red-800' }
+        { value: 'excellent', label: 'Excellent', icon: <FaGrinStars />, color: 'bg-emerald-100 border-emerald-300 text-emerald-800' },
+        { value: 'good', label: 'Good', icon: <FaSmile />, color: 'bg-blue-100 border-blue-300 text-blue-800' },
+        { value: 'okay', label: 'Okay', icon: <FaMeh />, color: 'bg-gray-100 border-gray-300 text-gray-800' },
+        { value: 'poor', label: 'Poor', icon: <FaFrown />, color: 'bg-orange-100 border-orange-300 text-orange-800' },
+        { value: 'terrible', label: 'Terrible', icon: <FaSadTear />, color: 'bg-red-100 border-red-300 text-red-800' }
     ];
 
     const getWeightChange = (currentIndex) => {
@@ -211,22 +230,24 @@ const ProgressTracker = () => {
                             </label>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 {[
-                                    { key: 'chest', label: 'Chest', icon: '📏' },
-                                    { key: 'waist', label: 'Waist', icon: '👖' },
-                                    { key: 'hips', label: 'Hips', icon: '🩰' },
-                                    { key: 'arms', label: 'Arms', icon: '💪' },
-                                    { key: 'thighs', label: 'Thighs', icon: '🦵' }
+                                    { key: 'chest', label: 'Chest', icon: <GiChest /> },
+                                    { key: 'waist', label: 'Waist', icon: <GiBelt /> },
+                                    { key: 'hips', label: 'Hips', icon: <GiShorts /> },
+                                    { key: 'arms', label: 'Arms', icon: <GiBiceps /> },
+                                    { key: 'thighs', label: 'Thighs', icon: <GiLeg /> }
                                 ].map((m) => (
                                     <div key={m.key} className="relative group">
                                         <label className="block text-xs text-gray-600 dark:text-gray-500 mb-1 ml-1 font-semibold">{m.label}</label>
                                         <div className="relative">
-                                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50">{m.icon}</span>
+                                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50 text-lg text-emerald-600 dark:text-emerald-400">
+                                                {m.icon}
+                                            </span>
                                             <input
                                                 type="number"
                                                 name={`measurements.${m.key}`}
                                                 value={progressData.measurements[m.key]}
                                                 onChange={handleChange}
-                                                className="search-input w-full pl-9 pr-3 py-2.5 rounded-xl font-medium text-gray-900 dark:text-white"
+                                                className="search-input w-full pl-10 pr-3 py-2.5 rounded-xl font-medium text-gray-900 dark:text-white"
                                                 placeholder="--"
                                             />
                                         </div>
@@ -262,7 +283,7 @@ const ProgressTracker = () => {
                                             onChange={handleChange}
                                             className="hidden"
                                         />
-                                        <span className="text-2xl mb-1">{option.emoji}</span>
+                                        <span className="text-2xl mb-1">{option.icon}</span>
                                         <span className={`text-xs font-bold ${progressData.mood !== option.value ? 'text-gray-600 dark:text-gray-400' : ''}`}>{option.label}</span>
                                     </label>
                                 ))}
@@ -288,9 +309,9 @@ const ProgressTracker = () => {
                                 onChange={handleChange}
                                 className="w-full"
                             />
-                            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-2 font-medium">
-                                <span>Low Energy 😴</span>
-                                <span>High Energy ⚡</span>
+                            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-2 font-medium items-center">
+                                <span className="flex items-center gap-1"><FaBatteryQuarter /> Low Energy</span>
+                                <span className="flex items-center gap-1">High Energy <FaBatteryFull /></span>
                             </div>
                         </div>
 
@@ -326,13 +347,13 @@ const ProgressTracker = () => {
                 <div className="lg:col-span-1">
                     <div className="card-bg rounded-3xl p-6 shadow-sm h-full flex flex-col">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                            <span>📜</span> History
+                            <span><FaHistory className="text-emerald-500"/></span> History
                         </h3>
 
                         <div className="flex-1 overflow-y-auto custom-scroll pr-2 space-y-4 max-h-[800px]">
                             {progressHistory.length === 0 ? (
                                 <div className="text-center py-10 opacity-60">
-                                    <div className="text-4xl mb-3">📉</div>
+                                    <div className="text-4xl mb-3 flex justify-center text-gray-400"><FaChartBar /></div>
                                     <p className="text-sm text-gray-600 dark:text-gray-400">No records found yet.</p>
                                 </div>
                             ) : (
@@ -360,7 +381,7 @@ const ProgressTracker = () => {
                                                                 ? 'bg-rose-100 text-rose-800 dark:text-rose-700'
                                                                 : 'bg-gray-100 text-gray-800 dark:text-gray-600'
                                                         }`}>
-                                                            {weightChange.direction === 'down' ? '↓' : '↑'} {weightChange.value}kg
+                                                            {weightChange.direction === 'down' ? <FaArrowDown /> : <FaArrowUp />} {weightChange.value}kg
                                                         </span>
                                                     )}
                                                 </div>
@@ -370,13 +391,13 @@ const ProgressTracker = () => {
                                                         {entry.weight} <span className="text-sm text-gray-500 font-normal">kg</span>
                                                     </span>
                                                     <div className="text-2xl" title="Mood">
-                                                        {moodOptions.find(m => m.value === entry.mood)?.emoji}
+                                                        {moodOptions.find(m => m.value === entry.mood)?.icon}
                                                     </div>
                                                 </div>
 
                                                 <div className="flex gap-2 mb-2">
-                                                    <span className="text-xs font-semibold bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded border border-gray-200 dark:border-gray-600">
-                                                        ⚡ Energy: {entry.energyLevel}/10
+                                                    <span className="text-xs font-semibold bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 flex items-center gap-1">
+                                                        <FaBolt className="text-yellow-500"/> Energy: {entry.energyLevel}/10
                                                     </span>
                                                 </div>
 

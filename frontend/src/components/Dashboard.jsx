@@ -6,6 +6,14 @@ import MealPlanner from './MealPlanner';
 import FoodSearch from './FoodSearch';
 import ProgressTracker from './ProgressTracker';
 
+// --- Icons Import ---
+import { FiSun, FiMoon, FiGrid, FiSearch, FiTrendingUp, FiUser, FiSettings } from 'react-icons/fi';
+import { MdRestaurantMenu, MdOutlineFreeBreakfast, MdOutlineLunchDining, MdOutlineDinnerDining, MdOutlineRestaurant } from 'react-icons/md';
+import { FaFire, FaWeight, FaBullseye, FaHamburger, FaTrophy } from 'react-icons/fa';
+import { GiAvocado, GiChickenLeg, GiSteak } from 'react-icons/gi';
+import { IoWaterOutline } from 'react-icons/io5';
+import { BiBowlRice } from 'react-icons/bi';
+
 const Dashboard = () => {
     const { user, logout } = useAuth();
     const [activeSection, setActiveSection] = useState('overview');
@@ -152,6 +160,15 @@ const Dashboard = () => {
         );
     }
 
+    // Navigation Items configuration with React Icons
+    const navItems = [
+        { id: 'overview', name: 'Overview', icon: <FiGrid size={18} /> },
+        { id: 'meal-plan', name: 'Meal Plan', icon: <MdRestaurantMenu size={18} /> },
+        { id: 'food-search', name: 'Search', icon: <FiSearch size={18} /> },
+        { id: 'progress', name: 'Progress', icon: <FiTrendingUp size={18} /> },
+        { id: 'profile', name: 'Profile', icon: <FiUser size={18} /> }
+    ];
+
     return (
         <div className={`min-h-screen font-sans transition-colors duration-300 ${darkMode ? 'dark-theme' : ''} app-bg`}>
             <style>{styles}</style>
@@ -161,14 +178,16 @@ const Dashboard = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center py-4">
                         <div className="flex items-center gap-3">
-                            <span className="text-3xl p-2 rounded-xl bg-emerald-100/50">🥗</span>
+                            <span className="text-3xl p-2 rounded-xl bg-emerald-100/50 text-emerald-600">
+                                <BiBowlRice />
+                            </span>
                             <div>
                                 <h1 className="text-2xl font-bold text-primary tracking-tight">Diet Planner</h1>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-xl">
-                                {darkMode ? '☀️' : '🌙'}
+                            <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-xl text-primary">
+                                {darkMode ? <FiSun /> : <FiMoon />}
                             </button>
                             <div className="hidden md:flex flex-col items-end">
                                 <span className="text-xs text-secondary">Welcome,</span>
@@ -186,13 +205,7 @@ const Dashboard = () => {
             <div className="card-bg sticky top-[76px] z-40 border-t border-gray-100 dark:border-gray-800 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex space-x-2 overflow-x-auto py-3 no-scrollbar">
-                        {[
-                            { id: 'overview', name: 'Overview', icon: '📊' },
-                            { id: 'meal-plan', name: 'Meal Plan', icon: '🍽️' },
-                            { id: 'food-search', name: 'Search', icon: '🔍' },
-                            { id: 'progress', name: 'Progress', icon: '📈' },
-                            { id: 'profile', name: 'Profile', icon: '👤' }
-                        ].map((item) => (
+                        {navItems.map((item) => (
                             <button
                                 key={item.id}
                                 onClick={() => setActiveSection(item.id)}
@@ -200,7 +213,7 @@ const Dashboard = () => {
                                     activeSection === item.id ? 'active' : 'text-secondary'
                                 }`}
                             >
-                                <span className="mr-2">{item.icon}</span>
+                                <span className="mr-2 flex items-center">{item.icon}</span>
                                 {item.name}
                             </button>
                         ))}
@@ -220,8 +233,10 @@ const Dashboard = () => {
 const DashboardOverview = ({ user, data, loading, onRefresh, setActiveSection }) => {
     if (!data) {
         return (
-            <div className="card-bg rounded-3xl p-12 text-center">
-                <div className="text-6xl mb-4">🥑</div>
+            <div className="card-bg rounded-3xl p-12 text-center flex flex-col items-center">
+                <div className="text-6xl mb-4 text-emerald-500">
+                    <GiAvocado />
+                </div>
                 <h3 className="text-xl font-bold text-primary mb-2">Let's get started!</h3>
                 <p className="text-secondary mb-6">No data available. Set up your profile to generate your plan.</p>
                 <button onClick={onRefresh} className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:bg-emerald-600">
@@ -290,32 +305,32 @@ const DashboardOverview = ({ user, data, loading, onRefresh, setActiveSection })
                     label="Daily Energy" 
                     value={profile?.dailyCalories || 2000} 
                     unit="kcal" 
-                    icon="🔥"
-                    watermark="🍔" // Burger/Food watermark
+                    icon={<FaFire />}
+                    watermark={<FaHamburger />} // Burger/Food watermark
                 />
                 <FoodStatCard 
                     type="protein" 
                     label="Protein Intake" 
                     value={profile?.proteinTarget || 50} 
                     unit="g" 
-                    icon="🥩"
-                    watermark="🍗" // Chicken leg watermark
+                    icon={<GiSteak />}
+                    watermark={<GiChickenLeg />} // Chicken leg watermark
                 />
                 <FoodStatCard 
                     type="weight" 
                     label="Current Weight" 
                     value={recentWeight || profile?.weight || '--'} 
                     unit="kg" 
-                    icon="⚖️"
-                    watermark="🥑" // Avocado watermark (healthy weight)
+                    icon={<FaWeight />}
+                    watermark={<GiAvocado />} // Avocado watermark (healthy weight)
                 />
                 <FoodStatCard 
                     type="goal" 
                     label="Main Goal" 
                     value={profile?.goal ? profile.goal.split('_')[0] : 'Set Goal'} 
                     unit="" 
-                    icon="🎯"
-                    watermark="🏆" // Trophy watermark
+                    icon={<FaBullseye />}
+                    watermark={<FaTrophy />} // Trophy watermark
                 />
             </div>
 
@@ -331,21 +346,21 @@ const DashboardOverview = ({ user, data, loading, onRefresh, setActiveSection })
                                 onClick={() => setActiveSection && setActiveSection('meal-plan')}
                                 className="flex flex-col items-center justify-center p-4 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 hover:bg-orange-100 transition-colors"
                             >
-                                <span className="text-2xl mb-2">🍽️</span>
+                                <span className="text-2xl mb-2"><MdOutlineRestaurant /></span>
                                 <span className="text-sm font-bold">Plan Meals</span>
                             </button>
                             <button 
                                 onClick={() => setActiveSection && setActiveSection('food-search')}
                                 className="flex flex-col items-center justify-center p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition-colors"
                             >
-                                <span className="text-2xl mb-2">🔍</span>
+                                <span className="text-2xl mb-2"><FiSearch /></span>
                                 <span className="text-sm font-bold">Add Food</span>
                             </button>
                             <button 
                                 onClick={() => setActiveSection && setActiveSection('progress')}
                                 className="flex flex-col items-center justify-center p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition-colors"
                             >
-                                <span className="text-2xl mb-2">📈</span>
+                                <span className="text-2xl mb-2"><FiTrendingUp /></span>
                                 <span className="text-sm font-bold">Log Weight</span>
                             </button>
                         </div>
@@ -364,9 +379,9 @@ const DashboardOverview = ({ user, data, loading, onRefresh, setActiveSection })
                                 todayMealPlan.meals.map((meal, index) => (
                                     <div key={index} className="flex justify-between items-center p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors border border-gray-100 dark:border-gray-700">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-xl">
-                                                {meal.name.toLowerCase().includes('break') ? '🍳' : 
-                                                 meal.name.toLowerCase().includes('lun') ? '🥗' : '🍛'}
+                                            <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl">
+                                                {meal.name.toLowerCase().includes('break') ? <MdOutlineFreeBreakfast /> : 
+                                                 meal.name.toLowerCase().includes('lun') ? <MdOutlineLunchDining /> : <MdOutlineDinnerDining />}
                                             </div>
                                             <div>
                                                 <h4 className="font-bold text-primary capitalize">{meal.name}</h4>
@@ -394,20 +409,22 @@ const DashboardOverview = ({ user, data, loading, onRefresh, setActiveSection })
                     {!profile?.age && (
                         <div className="relative overflow-hidden bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-6 text-white shadow-lg">
                             <div className="relative z-10">
-                                <h3 className="font-bold text-lg mb-1">Finish Setup ⚠️</h3>
+                                <h3 className="font-bold text-lg mb-1 flex items-center gap-2">Finish Setup <FiSettings /></h3>
                                 <p className="text-sm opacity-90 mb-4">Add your details for accurate AI tracking.</p>
                                 <button onClick={() => setActiveSection('profile')} className="bg-white text-orange-600 px-4 py-2 rounded-lg text-sm font-bold shadow-md">
                                     Go to Profile
                                 </button>
                             </div>
-                            <div className="absolute right-0 bottom-0 text-6xl opacity-20 transform translate-x-2 translate-y-2">⚙️</div>
+                            <div className="absolute right-0 bottom-0 text-6xl opacity-20 transform translate-x-2 translate-y-2">
+                                <FiSettings />
+                            </div>
                         </div>
                     )}
                     
                     {/* Health Tip */}
                     <div className="card-bg p-6 rounded-2xl border-t-4 border-blue-500 shadow-sm">
                         <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xl">💧</span>
+                            <span className="text-xl text-blue-500"><IoWaterOutline /></span>
                             <span className="text-xs font-bold text-blue-500 uppercase">Hydration Tip</span>
                         </div>
                         <p className="text-primary text-sm leading-relaxed">
