@@ -91,13 +91,36 @@ const MealPlanner = () => {
             }
         } catch (error) {
             setMessage({ type: 'error', text: 'Error saving meal plan' });
+            console.log(error);
         } finally {
             setSaving(false);
         }
     };
 
-    const addFoodToMeal = (mealName, foodItem = null) => {
-        if (foodItem) {
+    // In your MealPlanner.jsx file
+const addFoodToMeal = async (mealName, foodItem = null) => {
+    if (foodItem) {
+        try {
+            let foodToAdd = foodItem;
+            
+            // Check if food is from API (has externalId or source 'usda') and doesn't have _id
+            const isExternalFood = (foodItem.externalId || foodItem.source === 'usda' || foodItem.source === 'edamam') && !foodItem._id;
+            
+            if (isExternalFood) {
+                console.log('🌐 Food from API, saving to database first...');
+                
+                // Save external food to database first
+                const saveResult = await dietAPI.saveExternalFood(foodItem);
+                
+                if (saveResult.success) {
+                    foodToAdd = saveResult.food; // Now has a valid MongoDB _id
+                    console.log(`✅ Food saved with ID: ${foodToAdd._id}`);
+                } else {
+                    throw new Error('Failed to save food to database');
+                }
+            }
+            
+            // Now add to meal plan
             setMealPlan(prev => ({
                 ...prev,
                 meals: prev.meals.map(meal => 
@@ -105,18 +128,31 @@ const MealPlanner = () => {
                         ? { 
                             ...meal, 
                             items: [...meal.items, { 
-                                food: foodItem,
+                                food: foodToAdd,
                                 servingSize: { amount: 100, unit: 'g' },
-                                customName: foodItem.name
+                                customName: foodToAdd.name
                             }] 
                         }
                         : meal
                 )
             }));
-        } else {
-            setMessage({ type: 'info', text: 'Please select a food from the list below' });
+            
+            // Optional: Show success message
+            setMessage({ type: 'success', text: `Added ${foodItem.name} to ${mealName}` });
+            setTimeout(() => setMessage({ type: '', text: '' }), 2000);
+            
+        } catch (error) {
+            console.error('Error adding food:', error);
+            setMessage({ 
+                type: 'error', 
+                text: `Failed to add ${foodItem.name}: ${error.message}` 
+            });
+            setTimeout(() => setMessage({ type: '', text: '' }), 3000);
         }
-    };
+    } else {
+        setMessage({ type: 'info', text: 'Please select a food from the list below' });
+    }
+};
 
     const removeFoodFromMeal = (mealName, itemIndex) => {
         setMealPlan(prev => ({
@@ -440,7 +476,7 @@ const MealPlanner = () => {
 
                     {/* Notes Area */}
                     <div className="card-bg rounded-2xl p-6 shadow-sm">
-                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                        <label className=" text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                             <span>📝</span> Daily Notes
                         </label>
                         <textarea
@@ -458,3 +494,14 @@ const MealPlanner = () => {
 };
 
 export default MealPlanner;
+
+
+
+
+
+
+
+
+
+
+
