@@ -67,6 +67,12 @@ export const dietAPI = {
         return res.data;
     },
 
+    // Add this new method
+    saveExternalFood: async (foodData) => {
+        const res = await axios.post(`${API_BASE_URL}/diet/foods/save-external`, { foodData });
+        return res.data;
+    },
+
     // Meal Planning
     getMealPlan: async (date) => {
         const res = await axios.get(`${API_BASE_URL}/diet/meal-plan/${date}`);

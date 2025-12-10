@@ -686,6 +686,88 @@ router.get('/sample-foods', async (req, res) => {
     }
 });
 
+
+
+// Add this route in routes/diet.js - either in public or protected section
+
+// Save external food to our database
+router.post('/foods/save-external', async (req, res) => {
+    try {
+        console.log('➕ Saving external food to database');
+        
+        const { foodData } = req.body;
+        const userId = req.user?.userId; // Optional: can be null for system foods
+        
+        if (!foodData || !foodData.name) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Food data is required' 
+            });
+        }
+        
+        // Check if food already exists by externalId or similar name
+        let existingFood = null;
+        
+        if (foodData.externalId) {
+            existingFood = await Food.findOne({ 
+                externalId: foodData.externalId 
+            });
+        }
+        
+        // If not found by externalId, check by name and nutrition
+        if (!existingFood) {
+            existingFood = await Food.findOne({ 
+                name: foodData.name,
+                'nutrition.calories': foodData.nutrition?.calories || 0,
+                source: foodData.source || 'usda'
+            });
+        }
+        
+        if (!existingFood) {
+            // Create new food
+            existingFood = new Food({
+                name: foodData.name,
+                brand: foodData.brand || 'Generic',
+                servingSize: foodData.servingSize || { 
+                    amount: 100, 
+                    unit: 'g' 
+                },
+                nutrition: foodData.nutrition || {
+                    calories: 0,
+                    protein: 0,
+                    carbs: 0,
+                    fat: 0,
+                    fiber: 0,
+                    sugar: 0,
+                    sodium: 0,
+                    cholesterol: 0
+                },
+                category: foodData.category || 'other',
+                source: foodData.source || 'usda',
+                externalId: foodData.externalId,
+                isPublic: true,
+                createdBy: userId || null
+            });
+            await existingFood.save();
+            console.log(`✅ New food saved: ${existingFood.name}`);
+        } else {
+            console.log(`✅ Food already exists: ${existingFood.name}`);
+        }
+        
+        res.json({ 
+            success: true, 
+            food: existingFood 
+        });
+        
+    } catch (error) {
+        console.error('❌ Error saving external food:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to save food: ' + error.message 
+        });
+    }
+});
+
 // ========== PROTECTED ROUTES (Require Authentication) ==========
 
 // All routes below require authentication
