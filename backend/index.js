@@ -16,6 +16,7 @@ console.log('====================================');
 // Import routes
 import authRoutes from './src/routes/auth.js';
 import dietRoutes from './src/routes/diet.js';
+import contactRoutes from './src/routes/contact.js';
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/diet', dietRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {

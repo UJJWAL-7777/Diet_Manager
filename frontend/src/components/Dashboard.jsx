@@ -5,9 +5,10 @@ import ProfileSetup from './ProfileSetup';
 import MealPlanner from './MealPlanner';
 import FoodSearch from './FoodSearch';
 import ProgressTracker from './ProgressTracker';
+import ContactPage from './ContactPage';
 
 // --- Icons Import ---
-import { FiSun, FiMoon, FiGrid, FiSearch, FiTrendingUp, FiUser, FiSettings } from 'react-icons/fi';
+import { FiSun, FiMoon, FiGrid, FiSearch, FiTrendingUp, FiUser, FiSettings, FiMail } from 'react-icons/fi';
 import { MdRestaurantMenu, MdOutlineFreeBreakfast, MdOutlineLunchDining, MdOutlineDinnerDining, MdOutlineRestaurant } from 'react-icons/md';
 import { FaFire, FaWeight, FaBullseye, FaHamburger, FaTrophy } from 'react-icons/fa';
 import { GiAvocado, GiChickenLeg, GiSteak } from 'react-icons/gi';
@@ -146,6 +147,7 @@ const Dashboard = () => {
             case 'meal-plan': return <Wrapper><MealPlanner /></Wrapper>;
             case 'food-search': return <Wrapper><FoodSearch /></Wrapper>;
             case 'progress': return <Wrapper><ProgressTracker /></Wrapper>;
+            case 'contact': return <Wrapper><ContactPage /></Wrapper>;
             default: return <Wrapper><DashboardOverview user={user} data={dashboardData} loading={loading} onRefresh={loadDashboardData} /></Wrapper>;
         }
     };
@@ -166,7 +168,8 @@ const Dashboard = () => {
         { id: 'meal-plan', name: 'Meal Plan', icon: <MdRestaurantMenu size={18} /> },
         { id: 'food-search', name: 'Search', icon: <FiSearch size={18} /> },
         { id: 'progress', name: 'Progress', icon: <FiTrendingUp size={18} /> },
-        { id: 'profile', name: 'Profile', icon: <FiUser size={18} /> }
+        { id: 'profile', name: 'Profile', icon: <FiUser size={18} /> },
+        { id: 'contact', name: 'Contact', icon: <FiMail size={18} /> }
     ];
 
     return (
